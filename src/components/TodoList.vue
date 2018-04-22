@@ -1,7 +1,7 @@
 <template>
   <section>
       <ul>
-          <li v-for="(item, index) in todoItems" v-bind:key="item.item" class="shadow">
+          <li v-for="(item, index) in propsdata" v-bind:key="item.item" class="shadow">
             <i class="checkBtn fas fa-check" 
                 v-bind:class="{checkBtnCompleted: item.completed}" 
                 v-on:click="toggleComplete(item, index)"></i>
@@ -16,35 +16,14 @@
 
 <script>
 export default {
-    data () {
-        return {
-            todoItems: []
-        }
-    },
+    props: ['propsdata'],
     methods: {
         removeTodo (item, idx) {
-            localStorage.removeItem(item.item)
-            this.todoItems.splice(idx, 1)
+            this.$emit('removeTodo', item, idx)
         },
         toggleComplete (itm, idx) {
-            itm.completed = !itm.completed
-            // 로컬스토리지의 데이터 갱신
-            localStorage.removeItem(itm.item)
-            localStorage.setItem(itm.item, JSON.stringify(itm))
+            this.$emit('toggleComplete', itm, idx)
         }
-    },
-    created () {
-        if(localStorage.length > 0) {
-            let len = localStorage.length;
-            for(var i=0; i < len; i++) {
-                let key = localStorage.key(i)
-                if(key !== 'loglevel:webpack-dev-server') {
-                    this.todoItems.push(JSON.parse(localStorage.getItem(localStorage.key(i))))
-                }
-            }
-        }
-        console.log('--------- this.todoItems ---------')
-        console.log(this.todoItems)
     }
 }
 </script>

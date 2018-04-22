@@ -4,22 +4,27 @@
       <TodoHeader />
     </div>
     <div>
-      <TodoInput />
+      <TodoInput 
+        v-on:addTodo="addTodo" />
     </div>
     <div>
-      <TodoList />
+      <TodoList 
+        v-bind:propsdata="todoItems" 
+        v-on:removeTodo="removeTodo" 
+        v-on:toggleComplete="toggleComplete" />
     </div>
     <div>
-      <TodoFooter />
+      <TodoFooter
+        v-on:clearTodo="clearTodo" />
     </div>
   </div>
 </template>
 
 <script>
-import TodoHeader from './components/TodoHeader.vue'
-import TodoInput from './components/TodoInput.vue'
-import TodoList from './components/TodoList.vue'
-import TodoFooter from './components/TodoFooter.vue'
+import TodoHeader from "./components/TodoHeader.vue";
+import TodoInput from "./components/TodoInput.vue";
+import TodoList from "./components/TodoList.vue";
+import TodoFooter from "./components/TodoFooter.vue";
 
 export default {
   components: {
@@ -27,8 +32,50 @@ export default {
     TodoInput,
     TodoList,
     TodoFooter
+  },
+  data() {
+    return {
+      todoItems: []
+    };
+  },
+  created() {
+    if (localStorage.length > 0) {
+      let len = localStorage.length;
+      for (var i = 0; i < len; i++) {
+        let key = localStorage.key(i);
+        if (key !== "loglevel:webpack-dev-server") {
+          this.todoItems.push(
+            JSON.parse(localStorage.getItem(localStorage.key(i)))
+          );
+        }
+      }
+    }
+  },
+  methods: {
+    addTodo(item) {
+      var obj = {
+        completed: false,
+        item: item
+      };
+      localStorage.setItem(item, JSON.stringify(obj));
+      this.todoItems.push(obj);
+    },
+    removeTodo(item, idx) {
+      localStorage.removeItem(item.item);
+      this.todoItems.splice(idx, 1);
+    },
+    toggleComplete(itm, idx) {
+      this.todoItems[idx].completed = !this.todoItems[idx].completed;
+      // 로컬스토리지의 데이터 갱신
+      localStorage.removeItem(itm.item);
+      localStorage.setItem(itm.item, JSON.stringify(itm));
+    },
+    clearTodo() {
+      localStorage.clear();
+      this.todoItems = []
+    }
   }
-}
+};
 </script>
 
 <style>
